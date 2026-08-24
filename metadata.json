@@ -1,0 +1,6 @@
+{
+  "name": "Mihon",
+  "description": "A clean, modern manga reader application inspired by Mihon.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
