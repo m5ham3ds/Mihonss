@@ -82,14 +82,7 @@ data class Manga(
     val unreadCount: Int
 )
 
-val mockLibrary = listOf(
-    Manga("1", "Solo Leveling", "Chugong", "10 years ago, after 'the Gate' that connected the real world with the monster world opened, some of the ordinary, everyday people received the power to hunt monsters...", "https://picsum.photos/seed/sololeveling/400/600", 12),
-    Manga("2", "Berserk", "Kentaro Miura", "His name is Guts, the Black Swordsman, a feared warrior spoken of only in whispers. Bearer of a gigantic sword...", "https://picsum.photos/seed/berserk/400/600", 0),
-    Manga("3", "One Piece", "Eiichiro Oda", "As a child, Monkey D. Luffy dreamed of becoming King of the Pirates...", "https://picsum.photos/seed/onepiece/400/600", 1084),
-    Manga("4", "Vagabond", "Takehiko Inoue", "In 16th century Japan, Shinmen Takezo is shunned by the local villagers as an outcast...", "https://picsum.photos/seed/vagabond/400/600", 5),
-    Manga("5", "Monster", "Naoki Urasawa", "Johan is a cold and calculating killer with a mysterious past...", "https://picsum.photos/seed/monster/400/600", 0),
-    Manga("6", "Chainsaw Man", "Tatsuki Fujimoto", "Denji's a poor young man who'll do anything for money, even hunting down devils with his pet devil-dog Pochita...", "https://picsum.photos/seed/chainsaw/400/600", 2),
-)
+val mockLibrary = emptyList<Manga>()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,7 +95,7 @@ fun MihonApp() {
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
             AnimatedVisibility(
-                visible = currentRoute == "library",
+                visible = currentRoute in listOf("library", "updates", "history", "browse", "more"),
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
@@ -121,26 +114,46 @@ fun MihonApp() {
                     NavigationBarItem(
                         icon = { Icon(Icons.Filled.NewReleases, contentDescription = "Updates") },
                         label = { Text("Updates") },
-                        selected = false,
-                        onClick = { }
+                        selected = currentRoute == "updates",
+                        onClick = { 
+                            navController.navigate("updates") {
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
+                        }
                     )
                     NavigationBarItem(
                         icon = { Icon(Icons.Filled.History, contentDescription = "History") },
                         label = { Text("History") },
-                        selected = false,
-                        onClick = { }
+                        selected = currentRoute == "history",
+                        onClick = { 
+                            navController.navigate("history") {
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
+                        }
                     )
                     NavigationBarItem(
                         icon = { Icon(Icons.Filled.TravelExplore, contentDescription = "Browse") },
                         label = { Text("Browse") },
-                        selected = false,
-                        onClick = { }
+                        selected = currentRoute == "browse",
+                        onClick = { 
+                            navController.navigate("browse") {
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
+                        }
                     )
                     NavigationBarItem(
                         icon = { Icon(Icons.Filled.MoreHoriz, contentDescription = "More") },
                         label = { Text("More") },
-                        selected = false,
-                        onClick = { }
+                        selected = currentRoute == "more",
+                        onClick = { 
+                            navController.navigate("more") {
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
+                        }
                     )
                 }
             }
@@ -153,6 +166,18 @@ fun MihonApp() {
         ) {
             composable("library") {
                 LibraryScreen(navController)
+            }
+            composable("updates") {
+                UpdatesScreen()
+            }
+            composable("history") {
+                HistoryScreen()
+            }
+            composable("browse") {
+                BrowseScreen()
+            }
+            composable("more") {
+                MoreScreen()
             }
             composable(
                 "details/{mangaId}",
@@ -254,16 +279,26 @@ fun LibraryScreen(navController: NavController) {
                     text = { Text("Plan to read") }
                 )
             }
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 105.dp),
-                contentPadding = PaddingValues(8.dp),
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(mockLibrary) { manga ->
-                    MangaCoverItem(manga) {
-                        navController.navigate("details/${manga.id}")
+            if (mockLibrary.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "Library is empty",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 105.dp),
+                    contentPadding = PaddingValues(8.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(mockLibrary) { manga ->
+                        MangaCoverItem(manga) {
+                            navController.navigate("details/${manga.id}")
+                        }
                     }
                 }
             }
