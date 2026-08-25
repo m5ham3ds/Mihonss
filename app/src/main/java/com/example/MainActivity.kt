@@ -31,6 +31,9 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
@@ -516,38 +519,48 @@ fun MangaDetailScreen(manga: Manga, navController: NavController) {
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun ReaderScreen(manga: Manga, chapter: Int, navController: NavController) {
-    // A completely immersive reading screen mockup
     var uiVisible by remember { mutableStateOf(false) }
+    val pagerState = androidx.compose.foundation.pager.rememberPagerState(
+        initialPage = 4, // Start at the "first" page in RTL
+        pageCount = { 5 }
+    )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .clickable { uiVisible = !uiVisible }
     ) {
-        // Placeholder for reading pages
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(5) { page ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(2f/3f)
-                        .padding(1.dp)
-                        .background(Color.DarkGray),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Page ${page + 1}",
-                        color = Color.White,
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                }
+        // Horizontal Pager for manga pages (reading Right-to-Left by default)
+        androidx.compose.foundation.pager.HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { uiVisible = !uiVisible },
+            reverseLayout = true // Right-to-Left reading
+        ) { page ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp)
+                    .background(Color.DarkGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Page ${5 - page}",
+                    color = Color.White,
+                    style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
 
-        // Reader UI Overlay
+        // Reader UI Overlay - Top
         AnimatedVisibility(
             visible = uiVisible,
             enter = fadeIn(),
@@ -557,7 +570,7 @@ fun ReaderScreen(manga: Manga, chapter: Int, navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.7f))
+                    .background(Color.Black.copy(alpha = 0.85f))
                     .statusBarsPadding()
             ) {
                 Row(
@@ -581,10 +594,14 @@ fun ReaderScreen(manga: Manga, chapter: Int, navController: NavController) {
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = Color.White)
+                    }
                 }
             }
         }
 
+        // Reader UI Overlay - Bottom
         AnimatedVisibility(
             visible = uiVisible,
             enter = fadeIn(),
@@ -594,25 +611,39 @@ fun ReaderScreen(manga: Manga, chapter: Int, navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.7f))
+                    .background(Color.Black.copy(alpha = 0.85f))
                     .navigationBarsPadding()
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    IconButton(onClick = { /* Previous chapter */ }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous", tint = Color.White)
-                    }
-                    Text(
-                        text = "1 / 5",
-                        color = Color.White,
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                Column {
+                    // Page slider
+                    Slider(
+                        value = (4 - pagerState.currentPage).toFloat(),
+                        onValueChange = { /* Handle slider */ },
+                        valueRange = 0f..4f,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary
+                        )
                     )
-                    IconButton(onClick = { /* Next chapter */ }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Next", tint = Color.White)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp, start = 16.dp, end = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { /* Previous chapter */ }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous", tint = Color.White)
+                        }
+                        Text(
+                            text = "${5 - pagerState.currentPage} / 5",
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
+                        IconButton(onClick = { /* Next chapter */ }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next", tint = Color.White)
+                        }
                     }
                 }
             }
