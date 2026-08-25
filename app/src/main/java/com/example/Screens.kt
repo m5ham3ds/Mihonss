@@ -92,42 +92,12 @@ fun BrowseScreen() {
 
 @Composable
 fun ExtensionsList() {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        item {
-            Text(
-                "English",
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-        items(10) { index ->
-            ListItem(
-                headlineContent = { Text("Extension Name $index") },
-                supportingContent = { Text("v1.2.3 • all") },
-                leadingContent = {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Filled.Extension, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                },
-                trailingContent = {
-                    Button(onClick = {}, shape = RoundedCornerShape(16.dp)) {
-                        Text("Install")
-                    }
-                }
-            )
-        }
-    }
+    EmptyState(Icons.Filled.Extension, "No extensions found")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoreScreen() {
+fun MoreScreen(navController: androidx.navigation.NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("More", style = MaterialTheme.typography.titleLarge) })
@@ -158,37 +128,40 @@ fun MoreScreen() {
                 }
             }
             item { HorizontalDivider() }
-            item { SwitchListItem(Icons.Filled.CloudOff, "Downloaded only", false) }
-            item { SwitchListItem(Icons.Filled.VisibilityOff, "Incognito mode", false) }
+            item { SwitchListItem(Icons.Filled.CloudOff, "Downloaded only", "Filters all entries in your library", false) }
+            item { SwitchListItem(Icons.Filled.VisibilityOff, "Incognito mode", "Pauses reading history", false) }
             item { HorizontalDivider() }
-            item { SimpleListItem(Icons.Filled.Download, "Download queue") }
-            item { SimpleListItem(Icons.Filled.Label, "Categories") }
-            item { SimpleListItem(Icons.Filled.BarChart, "Statistics") }
-            item { SimpleListItem(Icons.Filled.SettingsBackupRestore, "Backup and restore") }
+            item { SimpleListItem(Icons.Filled.Download, "Download queue", null) { navController.navigate("download_queue") } }
+            item { SimpleListItem(Icons.Filled.Label, "Categories", null) { navController.navigate("categories") } }
+            item { SimpleListItem(Icons.Filled.BarChart, "Statistics") { navController.navigate("statistics") } }
+            item { SimpleListItem(Icons.Filled.Storage, "Data and storage") { navController.navigate("settings_data_storage") } }
             item { HorizontalDivider() }
-            item { SimpleListItem(Icons.Filled.Settings, "Settings") }
-            item { SimpleListItem(Icons.Filled.Info, "About") }
-            item { SimpleListItem(Icons.Filled.HelpOutline, "Help") }
+            item { SimpleListItem(Icons.Filled.Settings, "Settings") { navController.navigate("settings") } }
+            item { SimpleListItem(Icons.Filled.Favorite, "Support Us") { navController.navigate("support_us") } }
+            item { SimpleListItem(Icons.Filled.Info, "About") { navController.navigate("about") } }
+            item { SimpleListItem(Icons.Filled.HelpOutline, "Help") { navController.navigate("help") } }
         }
     }
 }
 
 @Composable
-fun SimpleListItem(icon: ImageVector, title: String) {
+fun SimpleListItem(icon: ImageVector, title: String, subtitle: String? = null, onClick: () -> Unit = {}) {
     ListItem(
         headlineContent = { Text(title) },
+        supportingContent = if (subtitle != null) { { Text(subtitle) } } else null,
         leadingContent = { Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-        modifier = Modifier.clickable { }
+        modifier = Modifier.clickable { onClick() }
     )
 }
 
 @Composable
-fun SwitchListItem(icon: ImageVector, title: String, checked: Boolean) {
+fun SwitchListItem(icon: ImageVector, title: String, subtitle: String? = null, checked: Boolean, onCheckedChange: (Boolean) -> Unit = {}) {
     ListItem(
         headlineContent = { Text(title) },
+        supportingContent = if (subtitle != null) { { Text(subtitle) } } else null,
         leadingContent = { Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-        trailingContent = { Switch(checked = checked, onCheckedChange = {}) },
-        modifier = Modifier.clickable { }
+        trailingContent = { Switch(checked = checked, onCheckedChange = onCheckedChange) },
+        modifier = Modifier.clickable { onCheckedChange(!checked) }
     )
 }
 

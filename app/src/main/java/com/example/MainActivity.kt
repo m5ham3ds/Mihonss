@@ -177,8 +177,27 @@ fun MihonApp() {
                 BrowseScreen()
             }
             composable("more") {
-                MoreScreen()
+                MoreScreen(navController)
             }
+            composable("download_queue") { DownloadQueueScreen(navController) }
+            composable("categories") { CategoriesScreen(navController) }
+            composable("statistics") { StatisticsScreen(navController) }
+            composable("backup_restore") { BackupRestoreScreen(navController) }
+            composable("settings") { SettingsScreen(navController) }
+            composable("about") { AboutScreen(navController) }
+            composable("help") { HelpScreen(navController) }
+            composable("support_us") { SupportUsScreen(navController) }
+            
+            // Settings Sub-screens
+            composable("settings_appearance") { AppearanceScreen(navController) }
+            composable("settings_library") { SettingsLibraryScreen(navController) }
+            composable("settings_reader") { SettingsReaderScreen(navController) }
+            composable("settings_downloads") { SettingsDownloadsScreen(navController) }
+            composable("settings_tracking") { SettingsTrackingScreen(navController) }
+            composable("settings_browse") { SettingsBrowseScreen(navController) }
+            composable("settings_data_storage") { DataAndStorageScreen(navController) }
+            composable("settings_security_privacy") { SecurityPrivacyScreen(navController) }
+            composable("settings_advanced") { SettingsAdvancedScreen(navController) }
             composable(
                 "details/{mangaId}",
                 arguments = listOf(navArgument("mangaId") { type = NavType.StringType })
